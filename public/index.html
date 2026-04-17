@@ -1,1 +1,131 @@
-<!-- index.html placeholder -->
+<!-- index.html placeholder --><!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Painel do Lojista | Vitrine Online</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+    <script src="https://unpkg.com/imask"></script>
+    
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b5cf6">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="bg-slate-50 font-['Inter'] text-slate-900 pb-20 md:pb-0">
+
+    <div id="auth-container" class="min-h-screen flex items-center justify-center p-4 bg-slate-50">
+        <div id="auth-card" class="bg-white p-8 rounded-2xl shadow-xl w-full max-w-md animate-fadeIn">
+            <div id="login-view">
+                <div class="text-center mb-8">
+                    <div class="w-20 h-20 bg-violet-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg rotate-3">
+                        <i data-lucide="shopping-bag" class="w-10 h-10 text-white"></i>
+                    </div>
+                    <h1 class="text-3xl font-800 text-slate-900 tracking-tight">Vitrine Online</h1>
+                    <p class="text-slate-500 mt-2 font-500">Painel do Lojista</p>
+                </div>
+
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-600 text-slate-700 mb-1">E-mail</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500 outline-none transition-all font-500" placeholder="seu@email.com">
+                    </div>
+                    <div>
+                        <label class="block text-sm font-600 text-slate-700 mb-1">Palavra-passe</label>
+                        <div class="relative">
+                            <input type="password" id="login-password" class="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-2 focus:ring-violet-500 outline-none transition-all font-500" placeholder="••••••••">
+                            <button onclick="togglePasswordVisibility('login-password')" class="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 p-1">
+                                <i data-lucide="eye" class="w-5 h-5"></i>
+                            </button>
+                        </div>
+                    </div>
+                    <button onclick="handleLogin()" class="w-full bg-violet-600 hover:bg-violet-700 text-white font-700 py-4 rounded-xl transition-all shadow-lg shadow-violet-200 flex items-center justify-center gap-2 group">
+                        <span>Entrar no Painel</span>
+                        <i data-lucide="arrow-right" class="w-5 h-5 group-hover:translate-x-1 transition-transform"></i>
+                    </button>
+                    <div class="text-center mt-6">
+                        <button onclick="toggleAuthView()" class="text-violet-600 font-600 hover:text-violet-700">Criar uma conta gratuita</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="register-view" class="hidden">
+                <div id="reg-step-1">
+                    <h2 class="text-2xl font-800 mb-6">Comece agora</h2>
+                    <div class="space-y-4">
+                        <input type="text" id="reg-store-name" class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="Nome da Loja">
+                        <input type="email" id="reg-email" class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="E-mail">
+                        <input type="password" id="reg-password" class="w-full px-4 py-3 rounded-xl border border-slate-200" placeholder="Palavra-passe">
+                        <button onclick="goToRegStep(2)" class="w-full bg-violet-600 text-white font-700 py-4 rounded-xl">Próximo Passo</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app" class="hidden">
+        <div class="flex flex-col md:flex-row min-h-screen">
+            <aside class="fixed bottom-0 left-0 right-0 md:relative md:w-72 bg-white border-t md:border-t-0 md:border-r border-slate-200 z-50">
+                <div class="h-full flex flex-col p-4">
+                    <div class="hidden md:flex items-center gap-3 px-4 py-6 mb-6">
+                        <div class="w-10 h-10 bg-violet-600 rounded-xl flex items-center justify-center shadow-lg">
+                            <i data-lucide="shopping-bag" class="text-white w-6 h-6"></i>
+                        </div>
+                        <span class="font-800 text-xl tracking-tight">Vitrine</span>
+                    </div>
+
+                    <nav class="flex flex-row md:flex-col justify-around md:justify-start gap-2">
+                        <button onclick="showSection('dashboard')" class="nav-item active flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 transition-all font-600" data-section="dashboard">
+                            <i data-lucide="layout-dashboard"></i> <span class="hidden md:block">Resumo</span>
+                        </button>
+                        <button onclick="showSection('products')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 transition-all font-600" data-section="products">
+                            <i data-lucide="package"></i> <span class="hidden md:block">Produtos</span>
+                        </button>
+                        <button onclick="showSection('orders')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 transition-all font-600" data-section="orders">
+                            <i data-lucide="shopping-cart"></i> <span class="hidden md:block">Pedidos</span>
+                        </button>
+                        <button onclick="showSection('finance')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 transition-all font-600" data-section="finance">
+                            <i data-lucide="bar-chart-3"></i> <span class="hidden md:block">Financeiro</span>
+                        </button>
+                        <button onclick="showSection('config')" class="nav-item flex items-center gap-3 px-4 py-3 rounded-xl text-slate-600 transition-all font-600" data-section="config">
+                            <i data-lucide="settings"></i> <span class="hidden md:block">Loja</span>
+                        </button>
+                    </nav>
+
+                    <button onclick="handleLogout()" class="hidden md:flex items-center gap-3 px-4 py-3 rounded-xl text-red-600 hover:bg-red-50 mt-auto font-600">
+                        <i data-lucide="log-out"></i> Sair
+                    </button>
+                </div>
+            </aside>
+
+            <main class="flex-1 p-4 md:p-8 pb-24 md:pb-8 overflow-y-auto h-screen">
+                <div id="dashboard-section" class="section-content animate-fadeIn">
+                    <div id="stats-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8"></div>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                         </div>
+                </div>
+
+                <div id="products-section" class="section-content hidden"></div>
+                <div id="orders-section" class="section-content hidden"></div>
+                <div id="finance-section" class="section-content hidden"></div>
+                <div id="config-section" class="section-content hidden"></div>
+            </main>
+        </div>
+    </div>
+
+    <div id="modal-container"></div>
+    <div id="printSection" style="display: none;"></div>
+
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>
