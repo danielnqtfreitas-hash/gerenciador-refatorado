@@ -1,76 +1,53 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-// Importações modulares das bibliotecas Firebase via CDN
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { 
-    getFirestore, 
-    doc, 
-    getDoc, 
-    collection, 
-    query, 
-    where, 
-    onSnapshot, 
-    updateDoc, 
-    addDoc, 
-    deleteDoc, 
-    setDoc, 
-    orderBy, 
-    limit, 
-    serverTimestamp,
-    increment,
-    runTransaction,
-    writeBatch
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-import { 
-    getAuth, 
-    onAuthStateChanged, 
-    signInWithEmailAndPassword, 
-    createUserWithEmailAndPassword, 
-    signOut 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { 
-    getStorage, 
-    ref, 
-    uploadBytes, 
-    getDownloadURL, 
-    deleteObject 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-import { 
-    getMessaging, 
-    getToken, 
-    onMessage 
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-messaging.js";
-
-// SUAS CREDENCIAIS REAIS EXTRAÍDAS DO ORIGINAL
-const firebaseConfig = {
-    apiKey: "AIzaSyB-vRTzO3e2S0N9_F8o-6Y-VlTRfZVw", // Chave original preservada
-    authDomain: "vitrine-online-941f6.firebaseapp.com",
-    projectId: "vitrine-online-941f6",
-    storageBucket: "vitrine-online-941f6.firebasestorage.app",
-    messagingSenderId: "1055536336441",
-    appId: "1:1055536336441:web:44754770007204620f5c15"
+/**
+ * Carrega a configuração do Firebase de forma segura.
+ * Tenta ler da variável global injetada pelo ambiente (Canvas/Render/GitHub).
+ */
+const getFirebaseConfig = () => {
+    try {
+        if (typeof __firebase_config !== 'undefined') {
+            return typeof __firebase_config === 'string' ? JSON.parse(__firebase_config) : __firebase_config;
+        }
+    } catch (e) {
+        console.error("Erro ao parsear __firebase_config:", e);
+    }
+    
+    // Fallback: Substitua pelos seus dados reais se estiver a testar localmente sem variáveis de ambiente
+    return {
+        apiKey: "",
+        authDomain: "",
+        projectId: "",
+        storageBucket: "",
+        messagingSenderId: "",
+        appId: ""
+    };
 };
 
-// Inicialização das Instâncias
+const firebaseConfig = getFirebaseConfig();
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const auth = getAuth(app);
-const storage = getStorage(app);
-const messaging = getMessaging(app);
 
-// Exportamos as instâncias e todas as funções necessárias para os módulos
-export { 
-    db, auth, storage, messaging,
-    // Firestore
-    doc, getDoc, collection, query, where, onSnapshot, updateDoc, addDoc, deleteDoc, setDoc, orderBy, limit, serverTimestamp, increment, runTransaction, writeBatch,
-    // Auth
-    onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut,
-    // Storage
-    ref, uploadBytes, getDownloadURL, deleteObject,
-    // Messaging
-    getToken, onMessage
-};
+export const auth = getAuth(app);
+export const db = getFirestore(app);
 
-// Mantemos as variáveis no objeto window apenas para compatibilidade
-// com funções que ainda podem estar a tentar ler do escopo global
-window.db = db;
-window.auth = auth;
+// Identificador único da aplicação/loja
+export const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-store-id';
+
+/**
+ * Inicializa a sessão do utilizador.
+ * Prioriza tokens de sessão existentes ou entra como anónimo para persistência.
+ */
+export async function initFirebaseStoreAuth() {
+    try {
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            return await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+            return await signInAnonymously(auth);
+        }
+    } catch (error) {
+        console.error("Erro crítico de Autenticação:", error);
+        throw error;
+    }
+}
